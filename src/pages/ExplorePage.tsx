@@ -60,7 +60,9 @@ export function ExplorerPage() {
 
       <div className="flex flex-1 overflow-hidden">
         <Sidebar
+          items={items}
           onNavigateRoot={() => navigateToFolder(null)}
+          onNavigateFolder={navigateToFolder}
           onCreateFolderClick={() => setIsCreateModalOpen(true)}
         />
 
