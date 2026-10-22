@@ -5,7 +5,7 @@ import { INITIAL_ITEMS } from '../services/mockData';
 const STORAGE_KEY = 'cloud_drive_vfs_data';
 
 export function useFileSystem() {
-  // Inicializa com os dados do localStorage ou cai de volta para o INITIAL_ITEMS
+  
   const [items, setItems] = useState<FileSystemItem[]>(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
@@ -21,12 +21,12 @@ export function useFileSystem() {
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Persiste no localStorage sempre que os itens mudarem
+  
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
   }, [items]);
 
-  // Filtra por pasta atual E por termo de busca se houver algo digitado
+  
   const currentItems = useMemo(() => {
     if (searchQuery.trim() !== '') {
       const query = searchQuery.toLowerCase();
@@ -37,7 +37,7 @@ export function useFileSystem() {
 
   const navigateToFolder = useCallback((folderId: string | null) => {
     setCurrentFolderId(folderId);
-    setSearchQuery(''); // Limpa a busca ao navegar entre pastas
+    setSearchQuery(''); 
   }, []);
 
   const createFolder = useCallback((name: string) => {
