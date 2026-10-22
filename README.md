@@ -38,14 +38,14 @@ cloud-drive/
 ├── package.json             # Project dependencies and scripts
 ├── vite.config.ts           # Vite and Tailwind plugin configuration
 └── tsconfig.json            # TypeScript configuration
-
+````
 🛠️ Prerequisites
 Make sure you have Node.js (version 18 or higher) and npm installed on your machine.
 
 📦 Installation & Setup
 Follow these steps to run the project locally:
 1. Clone the repository:
-```
+````
 git clone [https://github.com/your-username/cloud-drive.git](https://github.com/your-username/cloud-drive.git)
 cd cloud-drive````
 
