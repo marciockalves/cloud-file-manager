@@ -1,5 +1,5 @@
 import { ChevronRight, Home } from 'lucide-react';
-import type { BreadcrumbItem } from '../../vfs/utils/breadcrumb';
+import type { BreadcrumbItem } from '../vfs/utils/breadcrumb';
 
 
 interface BreadcrumbsProps {
