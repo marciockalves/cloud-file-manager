@@ -26,15 +26,37 @@ export function ExplorerPage() {
     createFolder,
     addFiles,
     deleteItem,
+    clipboard,
+    copyItem,
+    moveItem,
+    pasteItem,
   } = useFileSystem();
 
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
 
-  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; item: FileSystemItem } | null>(null);
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; item?: FileSystemItem } | null>(null);
 
   const breadcrumbPath = getBreadcrumbPath(items, currentFolderId);
+
+  // Handler para itens
+  const handleItemContextMenu = (e: React.MouseEvent, item: FileSystemItem) => {
+    e.stopPropagation();
+    setContextMenu({
+      x: e.clientX,
+      y: e.clientY,
+      item,
+    });
+  };
+// Handler para o fundo da página (área vazia)
+  const handleBackgroundContextMenu = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setContextMenu({
+      x: e.clientX,
+      y: e.clientY,
+    });
+  };
 
   const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -82,6 +104,7 @@ export function ExplorerPage() {
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
+          onContextMenu={handleBackgroundContextMenu}
         >
           <DropZoneOverlay isDragging={isDragging} />
 
@@ -104,7 +127,7 @@ export function ExplorerPage() {
                   item={item}
                   onNavigate={navigateToFolder}
                   onDelete={deleteItem}
-                  onContextMenu={handleContextMenu}
+                  onContextMenu={handleItemContextMenu}
                 />
               ))}
             </div>
@@ -117,7 +140,7 @@ export function ExplorerPage() {
               items={currentItems}
               onNavigate={navigateToFolder}
               onDelete={deleteItem}
-              onContextMenu={handleContextMenu}
+              onContextMenu={handleItemContextMenu}
             />
           )}
 
@@ -138,19 +161,15 @@ export function ExplorerPage() {
       {/* Menu de Contexto Flutuante */}
       {contextMenu && (
         <ContextMenu
-          x={contextMenu.x}
-          y={contextMenu.y}
-          onClose={() => setContextMenu(null)}
-          onDelete={() => deleteItem(contextMenu.item.id)}
-          onCopy={() => {
-            // Futura lógica de copiar arquivo/pasta
-            console.log('Copiar item:', contextMenu.item.name);
-          }}
-          onMove={() => {
-            // Futura lógica de mover arquivo/pasta
-            console.log('Mover item:', contextMenu.item.name);
-          }}
-        />
+      x={contextMenu.x}
+      y={contextMenu.y}
+      hasClipboardItem={!!clipboard}
+      onClose={() => setContextMenu(null)}
+      onCopy={contextMenu.item ? () => copyItem(contextMenu.item!.id) : undefined}
+      onMove={contextMenu.item ? () => moveItem(contextMenu.item!.id) : undefined}
+      onPaste={() => pasteItem()}
+      onDelete={contextMenu.item ? () => deleteItem(contextMenu.item!.id) : undefined}
+    />
       )}
     </div>
   );
