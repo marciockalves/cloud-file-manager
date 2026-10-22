@@ -12,6 +12,8 @@ import { CreateFolderModal } from '../components/common/CreateFolderModal';
 import { ExplorerToolbar } from '../components/layout/ExplorerToolbar';
 import { FileGridCard } from '../components/layout/FileGridCard';
 import { FileTable } from '../components/layout/FileTable';
+import type { FileSystemItem } from '../features/vfs/types/vfs';
+import { ContextMenu } from '../features/file-explorer/ContextMenu';
 
 export function ExplorerPage() {
   const {
@@ -29,6 +31,8 @@ export function ExplorerPage() {
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; item: FileSystemItem } | null>(null);
 
   const breadcrumbPath = getBreadcrumbPath(items, currentFolderId);
 
@@ -52,6 +56,13 @@ export function ExplorerPage() {
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       addFiles(e.dataTransfer.files);
     }
+  };
+  const handleContextMenu = (e: React.MouseEvent, item: FileSystemItem) => {
+    setContextMenu({
+      x: e.clientX,
+      y: e.clientY,
+      item,
+    });
   };
 
   return (
@@ -93,6 +104,7 @@ export function ExplorerPage() {
                   item={item}
                   onNavigate={navigateToFolder}
                   onDelete={deleteItem}
+                  onContextMenu={handleContextMenu}
                 />
               ))}
             </div>
@@ -105,6 +117,7 @@ export function ExplorerPage() {
               items={currentItems}
               onNavigate={navigateToFolder}
               onDelete={deleteItem}
+              onContextMenu={handleContextMenu}
             />
           )}
 
@@ -122,6 +135,23 @@ export function ExplorerPage() {
         onClose={() => setIsCreateModalOpen(false)}
         onCreateFolder={createFolder}
       />
+      {/* Menu de Contexto Flutuante */}
+      {contextMenu && (
+        <ContextMenu
+          x={contextMenu.x}
+          y={contextMenu.y}
+          onClose={() => setContextMenu(null)}
+          onDelete={() => deleteItem(contextMenu.item.id)}
+          onCopy={() => {
+            // Futura lógica de copiar arquivo/pasta
+            console.log('Copiar item:', contextMenu.item.name);
+          }}
+          onMove={() => {
+            // Futura lógica de mover arquivo/pasta
+            console.log('Mover item:', contextMenu.item.name);
+          }}
+        />
+      )}
     </div>
   );
 }
