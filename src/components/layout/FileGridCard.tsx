@@ -9,13 +9,21 @@ interface FileGridCardProps {
   item: FileSystemItem;
   onNavigate: (id: string) => void;
   onDelete: (id: string) => void;
+  onContextMenu: (e: React.MouseEvent, item: FileSystemItem) => void;
 }
 
-export function FileGridCard({ item, onNavigate, onDelete }: FileGridCardProps) {
+export function FileGridCard({ item, onNavigate, onDelete, onContextMenu }: FileGridCardProps) {
   return (
-    <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-xs hover:shadow-md transition-all flex flex-col justify-between group h-32">
+    <div
+      onContextMenu={(e) => {
+        e.preventDefault();
+        onContextMenu(e, item);
+      }}
+      className="bg-white p-4 rounded-xl border border-gray-200 shadow-xs
+       hover:shadow-md transition-all flex flex-col justify-between group h-32">
       <div
         className="flex items-start gap-3 flex-1 min-w-0 cursor-pointer"
+
         onClick={() => {
           if (item.type === 'folder') {
             onNavigate(item.id);

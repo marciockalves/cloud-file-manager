@@ -8,9 +8,10 @@ interface FileListProps {
   items: FileSystemItem[];
   onNavigate: (id: string) => void;
   onDelete: (id: string) => void;
+  onContextMenu: (e: React.MouseEvent, item: FileSystemItem) => void;
 }
 
-export function FileTable({ items, onNavigate, onDelete }: FileListProps) {
+export function FileTable({ items, onNavigate, onDelete, onContextMenu }: FileListProps) {
   return (
     <div className="bg-white rounded-xl border border-gray-200 shadow-xs overflow-hidden">
       <table className="w-full text-left border-collapse">
@@ -27,6 +28,10 @@ export function FileTable({ items, onNavigate, onDelete }: FileListProps) {
             <tr
               key={item.id}
               className="hover:bg-gray-50/80 transition-colors group cursor-pointer"
+              onContextMenu={(e) => {
+                e.preventDefault();
+                onContextMenu(e, item);
+              }}
               onClick={() => {
                 if (item.type === 'folder') {
                   onNavigate(item.id);
