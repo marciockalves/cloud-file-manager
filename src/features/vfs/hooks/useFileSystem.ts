@@ -5,7 +5,7 @@ import { INITIAL_ITEMS } from '../services/mockData';
 const STORAGE_KEY = 'cloud_drive_vfs_data';
 
 export function useFileSystem() {
-  
+
   const [items, setItems] = useState<FileSystemItem[]>(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
@@ -21,12 +21,68 @@ export function useFileSystem() {
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
 
-  
+  const [clipboard, setClipboard] = useState<{ type: 'copy' | 'move'; itemId: string } | null>(null);
+
+  const copyItem = (itemId: string) => {
+    setClipboard({ type: 'copy', itemId });
+  };
+
+  const moveItem = (itemId: string) => {
+    setClipboard({ type: 'move', itemId });
+  };
+
+  const pasteItem = () => {
+    if (!clipboard) return;
+
+    if (clipboard.type === 'move') {
+      // Evita mover uma pasta para dentro de si mesma
+      if (clipboard.itemId === currentFolderId) return;
+
+      setItems((prev) =>
+        prev.map((item) =>
+          item.id === clipboard.itemId
+            ? { ...item, parentId: currentFolderId, updatedAt: new Date().toISOString() }
+            : item
+        )
+      );
+      setClipboard(null); // Limpa o clipboard após mover
+    } else if (clipboard.type === 'copy') {
+      // Função recursiva para clonar arquivo ou pasta com seus filhos
+      const cloneRecursive = (targetId: string, newParentId: string | null): FileSystemItem[] => {
+        const original = items.find((i) => i.id === targetId);
+        if (!original) return [];
+
+        const newId = crypto.randomUUID();
+        const clonedItem: FileSystemItem = {
+          ...original,
+          id: newId,
+          name: `${original.name} (cópia)`,
+          parentId: newParentId,
+          updatedAt: new Date().toISOString(), // <--- Alterado de Date.now() (number) para string
+        };
+
+        let results: FileSystemItem[] = [clonedItem];
+
+        if (original.type === 'folder') {
+          const children = items.filter((i) => i.parentId === targetId);
+          children.forEach((child) => {
+            results = results.concat(cloneRecursive(child.id, newId));
+          });
+        }
+
+        return results;
+      };
+
+      const duplicatedItems = cloneRecursive(clipboard.itemId, currentFolderId);
+      setItems((prev) => [...prev, ...duplicatedItems]);
+    }
+  };
+
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
   }, [items]);
 
-  
+
   const currentItems = useMemo(() => {
     if (searchQuery.trim() !== '') {
       const query = searchQuery.toLowerCase();
@@ -37,7 +93,7 @@ export function useFileSystem() {
 
   const navigateToFolder = useCallback((folderId: string | null) => {
     setCurrentFolderId(folderId);
-    setSearchQuery(''); 
+    setSearchQuery('');
   }, []);
 
   const createFolder = useCallback((name: string) => {
@@ -84,11 +140,16 @@ export function useFileSystem() {
     currentFolderId,
     currentItems,
     searchQuery,
+    clipboard,
     setSearchQuery,
     navigateToFolder,
     createFolder,
     addFiles,
     deleteItem,
     resetToDefault,
+    copyItem,
+    moveItem,
+    pasteItem,
+    
   };
 }
