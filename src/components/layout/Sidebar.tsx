@@ -1,11 +1,23 @@
 import { Folder, HardDrive, Plus } from 'lucide-react';
+import type { FileSystemItem } from '../../features/vfs/types/vfs';
+
 
 interface SidebarProps {
+  items: FileSystemItem[]; // Lista completa ou filtrada de itens do VFS
   onNavigateRoot: () => void;
+  onNavigateFolder: (folderId: string) => void; // Nova prop para navegar para a pasta clicada
   onCreateFolderClick: () => void;
 }
 
-export function Sidebar({ onNavigateRoot, onCreateFolderClick }: SidebarProps) {
+export function Sidebar({
+  items,
+  onNavigateRoot,
+  onNavigateFolder,
+  onCreateFolderClick,
+}: SidebarProps) {
+
+  const folders = items.filter((item) => item.type === 'folder');
+
   return (
     <aside className="w-64 border-r border-gray-200 bg-gray-50/50 p-4 flex flex-col justify-between">
       <div className="space-y-6">
@@ -29,17 +41,25 @@ export function Sidebar({ onNavigateRoot, onCreateFolderClick }: SidebarProps) {
           </button>
           
           <div className="pt-2 pb-1 px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">
-            Pastas Rápidas
+            Minhas Pastas
           </div>
-          <div className="space-y-0.5 pl-2">
-            <div className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-gray-200/40 cursor-pointer">
-              <Folder className="w-4 h-4 text-amber-500" />
-              <span className="truncate">Documentos</span>
-            </div>
-            <div className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-gray-200/40 cursor-pointer">
-              <Folder className="w-4 h-4 text-amber-500" />
-              <span className="truncate">Imagens</span>
-            </div>
+          
+          {/* Lista Dinâmica de Pastas do LocalStorage / VFS */}
+          <div className="space-y-0.5 pl-2 max-h-60 overflow-y-auto">
+            {folders.length === 0 ? (
+              <p className="px-3 py-2 text-xs text-gray-400 italic">Nenhuma pasta criada</p>
+            ) : (
+              folders.map((folder) => (
+                <button
+                  key={folder.id}
+                  onClick={() => onNavigateFolder(folder.id)}
+                  className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-gray-200/40 text-left transition-colors cursor-pointer"
+                >
+                  <Folder className="w-4 h-4 text-amber-500 shrink-0" />
+                  <span className="truncate">{folder.name}</span>
+                </button>
+              ))
+            )}
           </div>
         </nav>
       </div>
