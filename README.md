@@ -47,16 +47,19 @@ Follow these steps to run the project locally:
 1. Clone the repository:
 ````
 git clone [https://github.com/your-username/cloud-drive.git](https://github.com/your-username/cloud-drive.git)
-cd cloud-drive````
+cd cloud-drive
+````
 
 2. Install dependencies:
-```Bash
+````
+Bash
 npm install
-```
+````
 3. Run the development server:
-```Bash
+````
+Bash
 npm run dev
-```
+````
 4. Open in your browser:
 Open http://localhost:5173 to view the application.
 
